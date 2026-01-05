@@ -64,7 +64,6 @@ WHITE_LIST_RANGES = [
     NetItem("95.181.182.0/24", "EdgeCenter", "AS210756", "CDN/edge"),
     NetItem("185.177.73.0/24", "MVPS", "AS202448", "hosting"),
     NetItem("103.111.114.0/24","Melbicom", "N/A", "provider network"),
-    NetItem("89.253.200.0/21", "LLC ASTRA CLOUD", "(rusonyx)", "(Москва) - Т2"),
 
 ]
 
