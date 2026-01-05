@@ -34,7 +34,7 @@ powered by miya service
 
 BANNER = "WhiteNetScan Powered By Miya Service"
 PORT = 443
-TIMEOUT = 0.3
+TIMEOUT = 0.6
 CONCURRENCY = 800
 MAX_IP_CHECK = 256
 FAIL_LIMIT = 5
@@ -496,37 +496,75 @@ async def check_ip(ip: str) -> bool:
         return False
 
 
+def _fmt_elapsed(sec: float) -> str:
+    m = int(sec) // 60
+    s = int(sec) % 60
+    return f"{m:02d}:{s:02d}"
+
 async def check_netitem(item: NetItem) -> bool:
+    """
+    Старое поведение: пробуем по одному IP, ищем первый успешный connect на 443.
+    Добавлен "эффект работы": прогресс в одной строке слева.
+    """
+    start = time.monotonic()
+
+    # Стартовая строка
+    sys.stdout.write(
+        f"[БЕЛЫЕ СПИСКИ] [...] проверяю {item.cidr} | {item.owner} | {item.asn} "
+        f"(0/{MAX_IP_CHECK}, { _fmt_elapsed(0) })\n"
+    )
+    sys.stdout.flush()
+
+    try:
+        return await asyncio.wait_for(_check_netitem_inner(item, start), timeout=ZONE_TIMEOUT)
+    except asyncio.TimeoutError:
+        sys.stdout.write(
+            f"[БЕЛЫЕ СПИСКИ] [-] TIMEOUT | {item.cidr} | {item.owner} | {item.asn} "
+            f"| elapsed={_fmt_elapsed(time.monotonic()-start)}\n"
+        )
+        sys.stdout.flush()
+        return False
+
+async def _check_netitem_inner(item: NetItem, start: float) -> bool:
     net = ipaddress.ip_network(item.cidr, strict=False)
 
-    fail_count = 0
     checked = 0
+    # как часто обновлять строку прогресса (чтобы не спамить)
+    UPDATE_EVERY = 8
 
-    for ip in net.hosts():
-        if checked >= MAX_IP_CHECK:
+    for i, ip in enumerate(net.hosts()):
+        if i >= MAX_IP_CHECK:
             break
 
-        ok = await check_ip(str(ip))
-        checked += 1
+        checked = i + 1
 
-        if ok:
-            print(
-                f"[БЕЛЫЕ СПИСКИ] [+] ДОСТУП ЕСТЬ | {item.cidr} | {item.owner} | {item.asn} "
-                f"(ip={ip})"
+        # "эффект работы": обновляем прогресс раз в UPDATE_EVERY попыток
+        if checked == 1 or (checked % UPDATE_EVERY == 0):
+            elapsed = time.monotonic() - start
+            sys.stdout.write(
+                f"\r[БЕЛЫЕ СПИСКИ] ... {item.cidr:18s} "
+                f"({checked:3d}/{MAX_IP_CHECK}, { _fmt_elapsed(elapsed) })  last={str(ip):15s}"
             )
+            sys.stdout.flush()
+
+        if await check_ip(str(ip)):
+            elapsed = time.monotonic() - start
+            # завершить прогресс-строку переводом строки
+            sys.stdout.write("\n")
+            sys.stdout.write(
+                f"[БЕЛЫЕ СПИСКИ] [+] ДОСТУП ЕСТЬ | {item.cidr} | {item.owner} | {item.asn} "
+                f"| found={ip} | checked={checked}/{MAX_IP_CHECK} | elapsed={_fmt_elapsed(elapsed)}\n"
+            )
+            sys.stdout.flush()
             return True
 
-        fail_count += 1
-        if fail_count >= FAIL_LIMIT:
-            print(
-                f"[БЕЛЫЕ СПИСКИ] [-] НЕДОСТУПНА | {item.cidr} | {item.owner} | {item.asn}"
-            )
-            return False
-
-        # микропауза только между IP
-        await asyncio.sleep(random.uniform(DELAY_MIN, DELAY_MAX))
-
-    print(f"[БЕЛЫЕ СПИСКИ] [-] НЕДОСТУПНА | {item.cidr} | {item.owner} | {item.asn}")
+    elapsed = time.monotonic() - start
+    sys.stdout.write("\n")
+    sys.stdout.write(
+        f"[БЕЛЫЕ СПИСКИ] [-] НЕТ ДОСТУПА | {item.cidr} | {item.owner} | {item.asn} "
+        f"| checked={checked}/{MAX_IP_CHECK} | elapsed={_fmt_elapsed(elapsed)}\n"
+    )
+    sys.stdout.flush()
     return False
 
 
