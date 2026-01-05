@@ -309,6 +309,7 @@ def interactive_shell(args_defaults: Dict[str, float]) -> int:
     print("  6) allowed (DNS + HTTP)")
     print("  7) diagnose (DNS)")
     print("  8) diagnose (DNS + HTTP)")
+    print("  9) Скан IP-зон Белых Списков")
     print("  h) help")
     print("  q) quit")
     hr()
@@ -362,6 +363,9 @@ def interactive_shell(args_defaults: Dict[str, float]) -> int:
             continue
         if cmd == "8":
             diagnose(True, args_defaults["delay"], args_defaults["dns_timeout"], args_defaults["http_timeout"])
+            continue
+        if cmd == "9":
+            asyncio.run(scan_zones(WHITE_LIST_RANGES))
             continue
 
         # simple command parsing (very lightweight)
@@ -503,7 +507,15 @@ async def check_netitem(item: NetItem) -> bool:
 
 
 async def scan_zones(items: List[NetItem]) -> None:
-    await asyncio.gather(*(check_netitem(i) for i in items))
+    results = await asyncio.gather(*(check_netitem(i) for i in items))
+
+    ok = sum(1 for r in results if r)
+    total = len(results)
+
+    print("-" * 72)
+    print(f"[БЕЛЫЕ СПИСКИ] ГОТОВО: {ok}/{total} зон доступны")
+
+# IP-Zones Scan
   
 def main() -> None:
     parser = build_parser()
