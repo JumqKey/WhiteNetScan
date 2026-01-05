@@ -60,13 +60,12 @@ WhiteNetScan предназначен для:
 ### Рекомендуемый способ (pipx)
 
 ```bash
-pipx install git+https://github.com/JumqKey/WhiteNetScan.git
-После установки команда scan будет доступна глобально.
+apt update
+apt install -y pipx python3-venv git
+pipx ensurepath
+export PATH="$PATH:/root/.local/bin"
 
-Альтернатива (pip)
-
-
-python -m pip install git+https://github.com/JumqKey/WhiteNetScan.git
+pipx install --force git+https://github.com/JumqKey/WhiteNetScan.git
 ```
 
 # 🖥 Использование
