@@ -3,6 +3,7 @@ import argparse
 import ipaddress
 import socket
 import sys
+import random
 import time
 import asyncio
 from dataclasses import dataclass
@@ -36,6 +37,11 @@ PORT = 443
 TIMEOUT = 0.6
 CONCURRENCY = 800
 MAX_IP_CHECK = 256
+FAIL_LIMIT = 5
+DELAY_MIN = 0.1
+DELAY_MAX = 0.2  
+ZONE_TIMEOUT = 5.0   # секунд на одну зону
+
 
 sem = asyncio.Semaphore(CONCURRENCY)
 
@@ -492,6 +498,17 @@ async def check_ip(ip: str) -> bool:
 
 
 async def check_netitem(item: NetItem) -> bool:
+    try:
+        return await asyncio.wait_for(
+            _check_netitem_inner(item),
+            timeout=ZONE_TIMEOUT
+        )
+    except asyncio.TimeoutError:
+        print(f"[БЕЛЫЕ СПИСКИ] [-] TIMEOUT | {item.cidr} | {item.owner} | {item.asn}")
+        return False
+
+
+async def _check_netitem_inner(item: NetItem) -> bool:
     net = ipaddress.ip_network(item.cidr, strict=False)
 
     for i, ip in enumerate(net.hosts()):
