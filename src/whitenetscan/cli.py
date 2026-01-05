@@ -11,13 +11,31 @@ import urllib.error
 import textwrap
 
 ASCII = r"""
- __        ___ _     _       _   _      _   ____                  
- \ \      / (_) |__ (_)_ __ | \ | | ___| | / ___|  ___ __ _ _ __  
-  \ \ /\ / /| | '_ \| | '_ \|  \| |/ _ \ | \___ \ / __/ _` | '_ \ 
-   \ V  V / | | | | | | |_) | |\  |  __/ |  ___) | (_| (_| | | | |
-    \_/\_/  |_|_| |_|_| .__/|_| \_|\___|_| |____/ \___\__,_|_| |_|
-                      |_|                                          
-              Powered By Miya Service
+                                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                                              
+WWWWWWWW                           WWWWWWWWhhhhhhh               iiii          tttt                              NNNNNNNN        NNNNNNNN                             tttt             SSSSSSSSSSSSSSS                                                        
+W::::::W                           W::::::Wh:::::h              i::::i      ttt:::t                              N:::::::N       N::::::N                          ttt:::t           SS:::::::::::::::S                                                       
+W::::::W                           W::::::Wh:::::h               iiii       t:::::t                              N::::::::N      N::::::N                          t:::::t          S:::::SSSSSS::::::S                                                       
+W::::::W                           W::::::Wh:::::h                          t:::::t                              N:::::::::N     N::::::N                          t:::::t          S:::::S     SSSSSSS                                                       
+ W:::::W           WWWWW           W:::::W  h::::h hhhhh       iiiiiiittttttt:::::ttttttt        eeeeeeeeeeee    N::::::::::N    N::::::N    eeeeeeeeeeee    ttttttt:::::ttttttt    S:::::S                cccccccccccccccc  aaaaaaaaaaaaa  nnnn  nnnnnnnn    
+  W:::::W         W:::::W         W:::::W   h::::hh:::::hhh    i:::::it:::::::::::::::::t      ee::::::::::::ee  N:::::::::::N   N::::::N  ee::::::::::::ee  t:::::::::::::::::t    S:::::S              cc:::::::::::::::c  a::::::::::::a n:::nn::::::::nn  
+   W:::::W       W:::::::W       W:::::W    h::::::::::::::hh   i::::it:::::::::::::::::t     e::::::eeeee:::::eeN:::::::N::::N  N::::::N e::::::eeeee:::::eet:::::::::::::::::t     S::::SSSS          c:::::::::::::::::c  aaaaaaaaa:::::an::::::::::::::nn 
+    W:::::W     W:::::::::W     W:::::W     h:::::::hhh::::::h  i::::itttttt:::::::tttttt    e::::::e     e:::::eN::::::N N::::N N::::::Ne::::::e     e:::::etttttt:::::::tttttt      SS::::::SSSSS    c:::::::cccccc:::::c           a::::ann:::::::::::::::n
+     W:::::W   W:::::W:::::W   W:::::W      h::::::h   h::::::h i::::i      t:::::t          e:::::::eeeee::::::eN::::::N  N::::N:::::::Ne:::::::eeeee::::::e      t:::::t              SSS::::::::SS  c::::::c     ccccccc    aaaaaaa:::::a  n:::::nnnn:::::n
+      W:::::W W:::::W W:::::W W:::::W       h:::::h     h:::::h i::::i      t:::::t          e:::::::::::::::::e N::::::N   N:::::::::::Ne:::::::::::::::::e       t:::::t                 SSSSSS::::S c:::::c               aa::::::::::::a  n::::n    n::::n
+       W:::::W:::::W   W:::::W:::::W        h:::::h     h:::::h i::::i      t:::::t          e::::::eeeeeeeeeee  N::::::N    N::::::::::Ne::::::eeeeeeeeeee        t:::::t                      S:::::Sc:::::c              a::::aaaa::::::a  n::::n    n::::n
+        W:::::::::W     W:::::::::W         h:::::h     h:::::h i::::i      t:::::t    tttttte:::::::e           N::::::N     N:::::::::Ne:::::::e                 t:::::t    tttttt            S:::::Sc::::::c     ccccccca::::a    a:::::a  n::::n    n::::n
+         W:::::::W       W:::::::W          h:::::h     h:::::hi::::::i     t::::::tttt:::::te::::::::e          N::::::N      N::::::::Ne::::::::e                t::::::tttt:::::tSSSSSSS     S:::::Sc:::::::cccccc:::::ca::::a    a:::::a  n::::n    n::::n
+          W:::::W         W:::::W           h:::::h     h:::::hi::::::i     tt::::::::::::::t e::::::::eeeeeeee  N::::::N       N:::::::N e::::::::eeeeeeee        tt::::::::::::::tS::::::SSSSSS:::::S c:::::::::::::::::ca:::::aaaa::::::a  n::::n    n::::n
+           W:::W           W:::W            h:::::h     h:::::hi::::::i       tt:::::::::::tt  ee:::::::::::::e  N::::::N        N::::::N  ee:::::::::::::e          tt:::::::::::ttS:::::::::::::::SS   cc:::::::::::::::c a::::::::::aa:::a n::::n    n::::n
+            WWW             WWW             hhhhhhh     hhhhhhhiiiiiiii         ttttttttttt      eeeeeeeeeeeeee  NNNNNNNN         NNNNNNN    eeeeeeeeeeeeee            ttttttttttt   SSSSSSSSSSSSSSS       cccccccccccccccc  aaaaaaaaaa  aaaa nnnnnn    nnnnnn
+                                                                                                                                                                                                                                                              
+                 POWERED BY MIYA SERVICE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@                                                                                                                                                                                                                                             
+                                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                                              
 """
 
 BANNER = "WhiteNetScan Powered By Miya Service"
