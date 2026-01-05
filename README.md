@@ -178,12 +178,16 @@ scan allowed --http
 
 - WhiteNetScan помогает это зафиксировать, а не обойти.
 
-#📄 Лицензия
+# 📄 Лицензия
 - Свободное использование в исследовательских и диагностических целях.
 - Автор: JumqKey , Miya Service
 
-#🤝 Контрибьютинг
+# 🤝 Контрибьютинг
 - PR, улучшения списков и документации — приветствуются.
 - Источники CIDR должны быть проверяемыми.
 
-#WhiteNetScan Powered By Miya Service
+# WhiteNetScan Powered By Miya Service
+ Связь
+ - support@miyavpn.online
+ - @miyasupp1
+ 
