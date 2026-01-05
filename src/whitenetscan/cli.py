@@ -497,17 +497,6 @@ async def check_ip(ip: str) -> bool:
 
 
 async def check_netitem(item: NetItem) -> bool:
-    try:
-        return await asyncio.wait_for(
-            _check_netitem_inner(item),
-            timeout=ZONE_TIMEOUT
-        )
-    except asyncio.TimeoutError:
-        print(f"[БЕЛЫЕ СПИСКИ] [-] TIMEOUT | {item.cidr} | {item.owner} | {item.asn}")
-        return False
-
-
-async def check_netitem(item: NetItem) -> bool:
     net = ipaddress.ip_network(item.cidr, strict=False)
 
     fail_count = 0
@@ -539,6 +528,16 @@ async def check_netitem(item: NetItem) -> bool:
 
     print(f"[БЕЛЫЕ СПИСКИ] [-] НЕДОСТУПНА | {item.cidr} | {item.owner} | {item.asn}")
     return False
+
+
+async def scan_zones(items: List[NetItem]) -> None:
+    results = await asyncio.gather(*(check_netitem(i) for i in items))
+
+    ok = sum(1 for r in results if r)
+    total = len(results)
+
+    print("-" * 72)
+    print(f"[БЕЛЫЕ СПИСКИ] ГОТОВО: {ok}/{total} зон доступны")
 
 
 # IP-Zones Scan
