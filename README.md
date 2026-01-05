@@ -56,7 +56,7 @@ WhiteNetScan предназначен для:
 ### Рекомендуемый способ (pipx)
 
 ```bash
-pipx install git+https://github.com/<USERNAME>/whitenetscan.git
+pipx install git+https://github.com/JumqKey/WhiteNetScan.git
 После установки команда scan будет доступна глобально.
 
 Альтернатива (pip)
