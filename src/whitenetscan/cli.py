@@ -65,7 +65,6 @@ WHITE_LIST_RANGES = [
     NetItem("185.177.73.0/24", "MVPS", "AS202448", "hosting"),
     NetItem("103.111.114.0/24","Melbicom", "N/A", "provider network"),
     NetItem("134.17.94.0/24",  "MTS Belarus", "AS25106", "provider network"),
-    NetItem("185.141.216.0/24","Moula-World LLC", "AS26832", "infrastructure"),
 ]
 
 
