@@ -60,9 +60,11 @@ pipx install git+https://github.com/<USERNAME>/whitenetscan.git
 После установки команда scan будет доступна глобально.
 
 Альтернатива (pip)
-bash
-Копировать код
+
+
 python -m pip install git+https://github.com/<USERNAME>/whitenetscan.git
+```
+
 🖥 Использование
 Общий синтаксис
 bash
