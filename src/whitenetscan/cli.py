@@ -34,7 +34,7 @@ powered by miya service
 
 BANNER = "WhiteNetScan Powered By Miya Service"
 PORT = 443
-TIMEOUT = 0.6
+TIMEOUT = 0.3
 CONCURRENCY = 800
 MAX_IP_CHECK = 256
 FAIL_LIMIT = 5
@@ -507,29 +507,39 @@ async def check_netitem(item: NetItem) -> bool:
         return False
 
 
-async def _check_netitem_inner(item: NetItem) -> bool:
+async def check_netitem(item: NetItem) -> bool:
     net = ipaddress.ip_network(item.cidr, strict=False)
 
-    for i, ip in enumerate(net.hosts()):
-        if i >= MAX_IP_CHECK:
+    fail_count = 0
+    checked = 0
+
+    for ip in net.hosts():
+        if checked >= MAX_IP_CHECK:
             break
 
-        if await check_ip(str(ip)):
-            print(f"[БЕЛЫЕ СПИСКИ] [+] ДОСТУП ЕСТЬ | {item.cidr} | {item.owner} | {item.asn}")
+        ok = await check_ip(str(ip))
+        checked += 1
+
+        if ok:
+            print(
+                f"[БЕЛЫЕ СПИСКИ] [+] ДОСТУП ЕСТЬ | {item.cidr} | {item.owner} | {item.asn} "
+                f"(ip={ip})"
+            )
             return True
 
-    print(f"[БЕЛЫЕ СПИСКИ] [-] НЕТ ДОСТУПА | {item.cidr} | {item.owner} | {item.asn}")
+        fail_count += 1
+        if fail_count >= FAIL_LIMIT:
+            print(
+                f"[БЕЛЫЕ СПИСКИ] [-] НЕДОСТУПНА | {item.cidr} | {item.owner} | {item.asn}"
+            )
+            return False
+
+        # микропауза только между IP
+        await asyncio.sleep(random.uniform(DELAY_MIN, DELAY_MAX))
+
+    print(f"[БЕЛЫЕ СПИСКИ] [-] НЕДОСТУПНА | {item.cidr} | {item.owner} | {item.asn}")
     return False
 
-
-async def scan_zones(items: List[NetItem]) -> None:
-    results = await asyncio.gather(*(check_netitem(i) for i in items))
-
-    ok = sum(1 for r in results if r)
-    total = len(results)
-
-    print("-" * 72)
-    print(f"[БЕЛЫЕ СПИСКИ] ГОТОВО: {ok}/{total} зон доступны")
 
 # IP-Zones Scan
   
