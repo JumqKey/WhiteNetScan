@@ -5,10 +5,16 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "whitenetscan"
 version = "1.0.0"
-description = "WhiteNetScan Powered By Miya Service (safe CIDR stats + optional domain checks)"
+description = "WhiteNetScan Powered By Miya Service"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = []
 
 [project.scripts]
 scan = "whitenetscan.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
