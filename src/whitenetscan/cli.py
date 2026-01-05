@@ -4,6 +4,7 @@ import ipaddress
 import socket
 import sys
 import time
+import asyncio
 from dataclasses import dataclass
 from typing import List, Dict, Tuple, Optional
 import urllib.request
@@ -31,6 +32,13 @@ powered by miya service
 """
 
 BANNER = "WhiteNetScan Powered By Miya Service"
+PORT = 443
+TIMEOUT = 0.6
+CONCURRENCY = 800
+MAX_IP_CHECK = 256
+
+sem = asyncio.Semaphore(CONCURRENCY)
+
 
 @dataclass(frozen=True)
 class NetItem:
@@ -39,20 +47,21 @@ class NetItem:
     asn: str
     note: str
 
-WHITE_LIST_RANGES: List[NetItem] = [
+WHITE_LIST_RANGES = [
     NetItem("51.250.0.0/17",   "Yandex Cloud", "AS200350", "hosting"),
     NetItem("84.201.128.0/18", "Yandex Cloud", "AS200350", "hosting"),
     NetItem("158.160.0.0/16",  "Yandex Cloud", "AS200350", "hosting"),
     NetItem("95.163.248.0/22", "VK Cloud", "AS47764", "hosting"),
     NetItem("217.16.24.0/21",  "VK Cloud Solutions", "AS47764", "hosting"),
-    NetItem("91.222.239.0/24",  "Timeweb", "AS9123", "hosting"),
-    NetItem("185.39.206.0/24",  "Timeweb", "AS9123", "hosting"),
+    NetItem("91.222.239.0/24", "Timeweb", "AS9123", "hosting"),
+    NetItem("185.39.206.0/24", "Timeweb", "AS9123", "hosting"),
     NetItem("95.181.182.0/24", "EdgeCenter", "AS210756", "CDN/edge"),
     NetItem("185.177.73.0/24", "MVPS", "AS202448", "hosting"),
-    NetItem("103.111.114.0/24", "Melbicom", "N/A", "provider network"),
-    NetItem("134.17.94.0/24",   "MTS Belarus", "AS25106", "provider network"),
-    NetItem("185.141.216.0/24", "Moula-World LLC", "AS26832", "infrastructure"),
+    NetItem("103.111.114.0/24","Melbicom", "N/A", "provider network"),
+    NetItem("134.17.94.0/24",  "MTS Belarus", "AS25106", "provider network"),
+    NetItem("185.141.216.0/24","Moula-World LLC", "AS26832", "infrastructure"),
 ]
+
 
 POPULAR_FOREIGN_SITES = [
     "github.com",
@@ -280,7 +289,7 @@ def diagnose(do_http: bool, delay: float, dns_timeout: float, http_timeout: floa
 
     hr()
     print("Notes:")
-    print("- Инструмент не обходит блокировки и не делает IP-range сканирование.")
+    print("- Результаты могут быть неточными. Авторы не несут ответственности за возможный ущерб, который может возникнуть при использовании данного скрипта.")
     print("- Это диагностический индикатор, а не стопроцентное доказательство.")
     return 0
 
@@ -415,10 +424,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     wl = sub.add_parser(
         "whitelist",
-        help="Белые IP-диапазоны: статистика CIDR (без сканирования IP).",
-        description="Показывает владельца/ASN/назначение и кол-во IP в подсетях. Никаких сетевых пакетов.",
+        help="Белые IP-диапазоны: статистика CIDR .",
+        description="Показывает владельца/ASN/назначение и кол-во IP в подсетях.",
     )
-    wl.add_argument("--full", action="store_true", help="Локально перечислить каждый IP (без сети).")
+    wl.add_argument("--full", action="store_true", help="Проверить IP-Аддреса.")
     wl.add_argument("--limit-full", type=int, default=20000, help="Лимит IP для --full (защита от огромного вывода).")
 
     pop = sub.add_parser(
@@ -458,15 +467,51 @@ def build_parser() -> argparse.ArgumentParser:
     sh.add_argument("--dns-timeout", type=float, default=3.0)
     sh.add_argument("--http-timeout", type=float, default=5.0)
 
+    zones = sub.add_parser(
+        "zones",
+        help="Проверка доступности IP-зон Белых Зон",
+    )
     return parser
 
+async def check_ip(ip: str) -> bool:
+    try:
+        async with sem:
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(ip, PORT),
+                timeout=TIMEOUT
+            )
+            writer.close()
+            await writer.wait_closed()
+            return True
+    except:
+        return False
+
+
+async def check_netitem(item: NetItem) -> bool:
+    net = ipaddress.ip_network(item.cidr, strict=False)
+
+    for i, ip in enumerate(net.hosts()):
+        if i >= MAX_IP_CHECK:
+            break
+
+        if await check_ip(str(ip)):
+            print(f"[БЕЛЫЕ СПИСКИ] [+] ДОСТУП ЕСТЬ | {item.cidr} | {item.owner} | {item.asn}")
+            return True
+
+    print(f"[БЕЛЫЕ СПИСКИ] [-] НЕТ ДОСТУПА | {item.cidr} | {item.owner} | {item.asn}")
+    return False
+
+
+async def scan_zones(items: List[NetItem]) -> None:
+    await asyncio.gather(*(check_netitem(i) for i in items))
+  
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
     # If no command: go interactive (nice UX)
     if args.cmd is None:
-        defaults = {"delay": 0.3, "dns_timeout": 3.0, "http_timeout": 5.0}
+        defaults = {"delay": 0.3, "dns_timeout": 2.0, "http_timeout": 2.0}
         raise SystemExit(interactive_shell(defaults))
 
     if args.cmd == "whitelist":
@@ -488,6 +533,10 @@ def main() -> None:
     if args.cmd == "shell":
         defaults = {"delay": args.delay, "dns_timeout": args.dns_timeout, "http_timeout": args.http_timeout}
         raise SystemExit(interactive_shell(defaults))
+      
+    if args.cmd == "zones":
+        asyncio.run(scan_zones(WHITE_LIST_RANGES))
+        raise SystemExit(0)
 
 if __name__ == "__main__":
     main()
