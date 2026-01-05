@@ -59,7 +59,6 @@ WHITE_LIST_RANGES = [
     NetItem("158.160.0.0/16",  "Yandex Cloud", "AS200350", "hosting"),
     NetItem("95.163.248.0/22", "VK Cloud", "AS47764", "hosting"),
     NetItem("217.16.24.0/21",  "VK Cloud Solutions", "AS47764", "hosting"),
-    NetItem("91.222.239.0/24", "Timeweb", "AS9123", "hosting"),
     NetItem("185.39.206.0/24", "Timeweb", "AS9123", "hosting"),
     NetItem("95.181.182.0/24", "EdgeCenter", "AS210756", "CDN/edge"),
     NetItem("185.177.73.0/24", "MVPS", "AS202448", "hosting"),
