@@ -1,5 +1,9 @@
 # WhiteNetScan Powered By Miya Service
 
+
+[![Хороший VPN-Сервис!](https://img.shields.io/badge/Chat%20on-Telegram-brightgreen.svg)](https://t.me/miyavpnbot)
+[![Сайт](https://img.shields.io/badge/Chat%20on-Telegram-brightgreen.svg)](https://miyavpn.online)
+
 **WhiteNetScan** — это безопасный CLI-инструмент для анализа *белых IP-диапазонов* и проверки доступности сайтов с целью **распознавания активного блокирования со стороны интернет-провайдера**.
 
 Проект создан для диагностики ситуаций, когда провайдер избирательно ограничивает доступ к определённым сетям, сервисам или платформам, при этом оставляя доступ к «разрешённым» ресурсам.
