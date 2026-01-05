@@ -13,6 +13,19 @@
 
 ---
 
+# Быстрая Установка
+```bash
+apt update 
+apt install -y pipx python3-venv git
+pipx ensurepath
+export PATH="$PATH:/root/.local/bin"
+
+pipx install --force git+https://github.com/JumqKey/WhiteNetScan.git
+```
+- ## Обновление
+```bash
+pipx upgrade whitenetscan
+```
 ## ⚠️ Важное предупреждение
 
 WhiteNetScan **НЕ**:
