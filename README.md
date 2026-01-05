@@ -26,6 +26,18 @@ pipx install --force git+https://github.com/JumqKey/WhiteNetScan.git
 ```bash
 pipx upgrade whitenetscan
 ```
+# Установка на Windows
+```bash
+git clone https://github.com/JumqKey/WhiteNetScan
+
+cd WhiteNetScan
+cd src
+cd whitenetscan
+
+python cli.py
+```
+- необходимо установить Python если у вас его нет.
+---
 ## ⚠️ Важное предупреждение
 
 WhiteNetScan **НЕ**:
