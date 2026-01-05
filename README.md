@@ -201,8 +201,4 @@ scan allowed --http
 - PR, улучшения списков и документации — приветствуются.
 - Источники CIDR должны быть проверяемыми.
 
-# WhiteNetScan Powered By Miya Service
- Связь
- - support@miyavpn.online
- - @miyasupp1
- 
+
