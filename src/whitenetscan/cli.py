@@ -12,30 +12,22 @@ import textwrap
 
 ASCII = r"""
                                                                                                                                                                                                                                                               
-                                                                                                                                                                                                                                                              
-WWWWWWWW                           WWWWWWWWhhhhhhh               iiii          tttt                              NNNNNNNN        NNNNNNNN                             tttt             SSSSSSSSSSSSSSS                                                        
-W::::::W                           W::::::Wh:::::h              i::::i      ttt:::t                              N:::::::N       N::::::N                          ttt:::t           SS:::::::::::::::S                                                       
-W::::::W                           W::::::Wh:::::h               iiii       t:::::t                              N::::::::N      N::::::N                          t:::::t          S:::::SSSSSS::::::S                                                       
-W::::::W                           W::::::Wh:::::h                          t:::::t                              N:::::::::N     N::::::N                          t:::::t          S:::::S     SSSSSSS                                                       
- W:::::W           WWWWW           W:::::W  h::::h hhhhh       iiiiiiittttttt:::::ttttttt        eeeeeeeeeeee    N::::::::::N    N::::::N    eeeeeeeeeeee    ttttttt:::::ttttttt    S:::::S                cccccccccccccccc  aaaaaaaaaaaaa  nnnn  nnnnnnnn    
-  W:::::W         W:::::W         W:::::W   h::::hh:::::hhh    i:::::it:::::::::::::::::t      ee::::::::::::ee  N:::::::::::N   N::::::N  ee::::::::::::ee  t:::::::::::::::::t    S:::::S              cc:::::::::::::::c  a::::::::::::a n:::nn::::::::nn  
-   W:::::W       W:::::::W       W:::::W    h::::::::::::::hh   i::::it:::::::::::::::::t     e::::::eeeee:::::eeN:::::::N::::N  N::::::N e::::::eeeee:::::eet:::::::::::::::::t     S::::SSSS          c:::::::::::::::::c  aaaaaaaaa:::::an::::::::::::::nn 
-    W:::::W     W:::::::::W     W:::::W     h:::::::hhh::::::h  i::::itttttt:::::::tttttt    e::::::e     e:::::eN::::::N N::::N N::::::Ne::::::e     e:::::etttttt:::::::tttttt      SS::::::SSSSS    c:::::::cccccc:::::c           a::::ann:::::::::::::::n
-     W:::::W   W:::::W:::::W   W:::::W      h::::::h   h::::::h i::::i      t:::::t          e:::::::eeeee::::::eN::::::N  N::::N:::::::Ne:::::::eeeee::::::e      t:::::t              SSS::::::::SS  c::::::c     ccccccc    aaaaaaa:::::a  n:::::nnnn:::::n
-      W:::::W W:::::W W:::::W W:::::W       h:::::h     h:::::h i::::i      t:::::t          e:::::::::::::::::e N::::::N   N:::::::::::Ne:::::::::::::::::e       t:::::t                 SSSSSS::::S c:::::c               aa::::::::::::a  n::::n    n::::n
-       W:::::W:::::W   W:::::W:::::W        h:::::h     h:::::h i::::i      t:::::t          e::::::eeeeeeeeeee  N::::::N    N::::::::::Ne::::::eeeeeeeeeee        t:::::t                      S:::::Sc:::::c              a::::aaaa::::::a  n::::n    n::::n
-        W:::::::::W     W:::::::::W         h:::::h     h:::::h i::::i      t:::::t    tttttte:::::::e           N::::::N     N:::::::::Ne:::::::e                 t:::::t    tttttt            S:::::Sc::::::c     ccccccca::::a    a:::::a  n::::n    n::::n
-         W:::::::W       W:::::::W          h:::::h     h:::::hi::::::i     t::::::tttt:::::te::::::::e          N::::::N      N::::::::Ne::::::::e                t::::::tttt:::::tSSSSSSS     S:::::Sc:::::::cccccc:::::ca::::a    a:::::a  n::::n    n::::n
-          W:::::W         W:::::W           h:::::h     h:::::hi::::::i     tt::::::::::::::t e::::::::eeeeeeee  N::::::N       N:::::::N e::::::::eeeeeeee        tt::::::::::::::tS::::::SSSSSS:::::S c:::::::::::::::::ca:::::aaaa::::::a  n::::n    n::::n
-           W:::W           W:::W            h:::::h     h:::::hi::::::i       tt:::::::::::tt  ee:::::::::::::e  N::::::N        N::::::N  ee:::::::::::::e          tt:::::::::::ttS:::::::::::::::SS   cc:::::::::::::::c a::::::::::aa:::a n::::n    n::::n
-            WWW             WWW             hhhhhhh     hhhhhhhiiiiiiii         ttttttttttt      eeeeeeeeeeeeee  NNNNNNNN         NNNNNNN    eeeeeeeeeeeeee            ttttttttttt   SSSSSSSSSSSSSSS       cccccccccccccccc  aaaaaaaaaa  aaaa nnnnnn    nnnnnn
-                                                                                                                                                                                                                                                              
-                 POWERED BY MIYA SERVICE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@                                                                                                                                                                                                                                             
-                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                              
+                                  .         s                                             s       .x+=:.                                       
+  x=~                .uef^"      @88>      :8                                            :8      z`    ^%                                      
+ 88x.   .e.   .e.  :d88E         %8P      .88                  u.    u.                 .88         .   <k                          u.    u.   
+'8888X.x888:.x888  `888E          .      :888ooo      .u     x@88k u@88c.      .u      :888ooo    .@8Ned8"       .         u      x@88k u@88c. 
+ `8888  888X '888k  888E .z8k   .@88u  -*8888888   ud8888.  ^"8888""8888"   ud8888.  -*8888888  .@^%8888"   .udR88N     us888u.  ^"8888""8888" 
+  X888  888X  888X  888E~?888L '"888E`   8888    :888'8888.   8888  888R  :888'8888.   8888    x88:  `)8b. <888'888k .@88 "8888"   8888  888R  
+  X888  888X  888X  888E  888E   888E    8888    d888 '88%"   8888  888R  d888 '88%"   8888    8888N=*8888 9888 'Y"  9888  9888    8888  888R  
+  X888  888X  888X  888E  888E   888E    8888    8888.+"      8888  888R  8888.+"      8888     %8"    R88 9888      9888  9888    8888  888R  
+ .X888  888X. 888~  888E  888E   888E   .8888Lu= 8888L        8888  888R  8888L       .8888Lu=   @8Wou 9%  9888      9888  9888    8888  888R  
+ `%88%``"*888Y"     888E  888E   888&   ^%888*   '8888c. .+  "*88*" 8888" '8888c. .+  ^%888*   .888888P`   ?8888u../ 9888  9888   "*88*" 8888" 
+   `~     `"       m888N= 888>   R888"    'Y"     "88888%      ""   'Y"    "88888%      'Y"    `   ^"F      "8888P'  "888*""888"    ""   'Y"   
+                    `Y"   888     ""                "YP'                     "YP'                             "P'     ^Y"   ^Y'                
+                         J88"                                                                                                                  
+                         @%                                                                                                                    
+                       :"                                                                                                                      
+powered by miya service                                                                                                                                                                                                                                   
 """
 
 BANNER = "WhiteNetScan Powered By Miya Service"
