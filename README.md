@@ -62,7 +62,7 @@ pipx install git+https://github.com/<USERNAME>/whitenetscan.git
 Альтернатива (pip)
 
 
-python -m pip install git+https://github.com/<USERNAME>/whitenetscan.git
+python -m pip install git+https://github.com/JumqKey/WhiteNetScan.git
 ```
 
 🖥 Использование
