@@ -1,4 +1,4 @@
-# WhiteNetScan Powered By Miya Service
+# WhiteNetScan Powered By Community
 
 
 [![Хороший VPN-Сервис!](https://img.shields.io/badge/%D0%A5%D0%BE%D1%80%D0%BE%D1%88%D0%B8%D0%B9_VPN_%D0%A1%D0%B5%D1%80%D0%B2%D0%B8%D1%81-Miya_VPN-blue)](https://t.me/miyavpnbot)
