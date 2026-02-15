@@ -1,4 +1,3 @@
-
 import argparse
 import ipaddress
 import socket
@@ -11,6 +10,13 @@ from typing import List, Dict, Tuple, Optional
 import urllib.request
 import urllib.error
 import textwrap
+
+
+#-----------------welcome-----------
+#open_source4all
+#you can steal, claim as yours and etc
+#use for legal purposes only
+#-----------------welcome-----------
 
 ASCII = r"""
                                                                                                                                                                                                                                                               
@@ -29,10 +35,10 @@ ASCII = r"""
                          J88"                                                                                                                  
                          @%                                                                                                                    
                        :"                                                                                                                      
-powered by miya service                                                                                                                                                                                                                                   
+powered by freedom                                                                                                                                                                                                                    
 """
 
-BANNER = "WhiteNetScan Powered By Miya Service"
+BANNER = "WhiteNetScan Powered By Freedom"
 PORT = 443
 TIMEOUT = 0.6
 CONCURRENCY = 800
@@ -40,7 +46,7 @@ MAX_IP_CHECK = 256
 FAIL_LIMIT = 5
 DELAY_MIN = 0.1
 DELAY_MAX = 0.2  
-ZONE_TIMEOUT = 5.0   # секунд на одну зону
+ZONE_TIMEOUT = 5.0   # seconds for zone
 
 
 sem = asyncio.Semaphore(CONCURRENCY)
@@ -372,7 +378,7 @@ def interactive_shell(args_defaults: Dict[str, float]) -> int:
             asyncio.run(scan_zones(WHITE_LIST_RANGES))
             continue
 
-        # simple command parsing (very lightweight)
+        # command parsing
         parts = cmd.split()
         if not parts:
             continue
@@ -502,14 +508,12 @@ def _fmt_elapsed(sec: float) -> str:
 
 async def check_netitem(item: NetItem) -> bool:
     """
-    Старое поведение: пробуем по одному IP, ищем первый успешный connect на 443.
-    Добавлен "эффект работы": прогресс в одной строке слева.
+    First success on 443 by TCP
     """
     start = time.monotonic()
 
-    # Стартовая строка
     sys.stdout.write(
-        f"[БЕЛЫЕ СПИСКИ] [...] проверяю {item.cidr} | {item.owner} | {item.asn} "
+        f"[БЕЛЫЕ СПИСКИ] [...] проверка.. {item.cidr} | {item.owner} | {item.asn} "
         f"(0/{MAX_IP_CHECK}, { _fmt_elapsed(0) })\n"
     )
     sys.stdout.flush()
@@ -528,7 +532,6 @@ async def _check_netitem_inner(item: NetItem, start: float) -> bool:
     net = ipaddress.ip_network(item.cidr, strict=False)
 
     checked = 0
-    # как часто обновлять строку прогресса (чтобы не спамить)
     UPDATE_EVERY = 8
 
     for i, ip in enumerate(net.hosts()):
@@ -537,7 +540,6 @@ async def _check_netitem_inner(item: NetItem, start: float) -> bool:
 
         checked = i + 1
 
-        # "эффект работы": обновляем прогресс раз в UPDATE_EVERY попыток
         if checked == 1 or (checked % UPDATE_EVERY == 0):
             elapsed = time.monotonic() - start
             sys.stdout.write(
@@ -548,7 +550,6 @@ async def _check_netitem_inner(item: NetItem, start: float) -> bool:
 
         if await check_ip(str(ip)):
             elapsed = time.monotonic() - start
-            # завершить прогресс-строку переводом строки
             sys.stdout.write("\n")
             sys.stdout.write(
                 f"[БЕЛЫЕ СПИСКИ] [+] ДОСТУП ЕСТЬ | {item.cidr} | {item.owner} | {item.asn} "
@@ -575,7 +576,7 @@ async def scan_zones(items: List[NetItem]) -> None:
 
     print("-" * 72)
     print(f"[БЕЛЫЕ СПИСКИ] ГОТОВО: {ok}/{total} зон доступны")
-    print(f"ВАЖНОЕ ПРИМЕЧАНИЕ!!! ОПРЕДЕЛЕНИЕ К ДОСТУПУ ЗОН ПРОВЕРЯЕТСЯ ПУТЕМ TCP СОЕДИНЕИЯ НА 443 ПОРТ ИЗ 256 АЙПИ ОДНОЙ ЗОНЫ, ЭТО МОЖЕТ БЫТЬ МЕДЛЕННО И НЕ КОРРЕКТНО")
+    print(f"ВАЖНОЕ ПРИМЕЧАНИЕ!!! ОПРЕДЕЛЕНИЕ К ДОСТУПУ ЗОН ПРОВЕРЯЕТСЯ ПУТЕМ TCP СОЕДИНЕИЯ НА 443 ПОРТ ИЗ 256 IP ОДНОЙ ЗОНЫ, ЭТО МОЖЕТ БЫТЬ МЕДЛЕННО И НЕ КОРРЕКТНО")
 
 
 # IP-Zones Scan
@@ -584,7 +585,7 @@ def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
-    # If no command: go interactive (nice UX)
+    # If no command
     if args.cmd is None:
         defaults = {"delay": 0.3, "dns_timeout": 2.0, "http_timeout": 2.0}
         raise SystemExit(interactive_shell(defaults))
@@ -615,3 +616,20 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+  
+#-----------------hashtags-----------
+#whitenetscangang@gmail.com
+#whitenetscan@tokyo.space
+#whitenetscan_number_one
+#Fsociety
+#FuckSociety
+#Networking
+#Scaning
+#Tools
+#-----------------hashtags-----------
+#
+#-----------------credits-----------
+#nevtikaniy
+#Goldberg
+#JumqKey
+#-----------------credits-----------
