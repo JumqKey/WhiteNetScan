@@ -92,6 +92,38 @@ ALLOWED_RU_SITES = [
     "rzd.ru", "tutu.ru",
     "kp.ru", "ria.ru", "rbc.ru", "gazeta.ru", "lenta.ru", "rambler.ru", "iz.ru", "tass.ru",
 ]
+BROWSER_USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"
+]
+
+class StealthEngine:
+    def __init__(self, stealth_mode: bool = False):
+        self.stealth_mode = stealth_mode
+        self.ua = random.choice(BROWSER_USER_AGENTS) if stealth_mode else "WhiteNetScan/1.1"
+
+    def get_headers(self) -> Dict[str, str]:
+        if not self.stealth_mode:
+            return {"User-Agent": self.ua}
+        return {
+            "User-Agent": self.ua,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Connection": "keep-alive"
+        }
+
+    async def jitter(self):
+        if self.stealth_mode:
+            await asyncio.sleep(random.uniform(0.1, 0.4))
+
+    def shuffle_list(self, data: list):
+        if self.stealth_mode:
+            temp = data.copy()
+            random.shuffle(temp)
+            return temp
+        return data
 
 def human_int(n: int) -> str:
     s = str(n)
@@ -174,12 +206,12 @@ def resolve_domain(domain: str, timeout: float) -> List[str]:
         return []
     return sorted(addrs)
 
-def http_head(domain: str, timeout: float) -> Tuple[bool, Optional[int]]:
+def http_head(domain: str, timeout: float, engine: StealthEngine) -> Tuple[bool, Optional[int]]:
     url = f"https://{domain}/"
     req = urllib.request.Request(
         url,
         method="HEAD",
-        headers={"User-Agent": "WhiteNetScan/1.1 (Safe availability check)"},
+        headers=engine.get_headers(),
     )
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -189,8 +221,9 @@ def http_head(domain: str, timeout: float) -> Tuple[bool, Optional[int]]:
     except Exception:
         return False, None
 
-def check_sites(domains: List[str], do_http: bool, delay: float, dns_timeout: float, http_timeout: float, title: str) -> Tuple[int, int, int]:
+def check_sites(domains: List[str], do_http: bool, delay: float, dns_timeout: float, http_timeout: float, title: str, engine: StealthEngine) -> Tuple[int, int, int]:
     """
+    Проверка списка доменов.
     returns: (dns_ok, http_ok, total)
     """
     print(ASCII)
@@ -199,6 +232,8 @@ def check_sites(domains: List[str], do_http: bool, delay: float, dns_timeout: fl
     print(title)
     print(f"Domains: {len(domains)} | HTTP: {'ON' if do_http else 'OFF'} | Delay: {delay}s")
     print(f"DNS timeout: {dns_timeout}s | HTTP timeout: {http_timeout}s")
+    if engine.stealth_mode:
+        print(f"[!] Stealth Mode Selected : Jitter and UA are enabled.")
     hr()
 
     ok_dns = 0
@@ -207,6 +242,7 @@ def check_sites(domains: List[str], do_http: bool, delay: float, dns_timeout: fl
 
     for i, d in enumerate(domains, 1):
         bar = progress_bar(i, total)
+        
         ips = resolve_domain(d, dns_timeout)
         dns_ok = bool(ips)
         if dns_ok:
@@ -217,7 +253,7 @@ def check_sites(domains: List[str], do_http: bool, delay: float, dns_timeout: fl
             line += f"  ->  {', '.join(ips[:4])}{' …' if len(ips) > 4 else ''}"
 
         if do_http:
-            reachable, code = http_head(d, http_timeout)
+            reachable, code = http_head(d, http_timeout, engine)
             if reachable:
                 ok_http += 1
                 line += f"  |  HTTP:{code}"
@@ -226,14 +262,18 @@ def check_sites(domains: List[str], do_http: bool, delay: float, dns_timeout: fl
 
         print(line)
 
-        if delay > 0 and i != total:
-            time.sleep(delay)
+        if i != total:
+            if engine.stealth_mode:
+                time.sleep(delay + random.uniform(0.1, 0.4))
+            elif delay > 0:
+                time.sleep(delay)
 
     hr()
     print("Stats:")
     print(f"- DNS OK: {ok_dns}/{total}")
     if do_http:
         print(f"- HTTP reachable: {ok_http}/{total}")
+    
     return ok_dns, ok_http, total
 
 def percent(a: int, b: int) -> float:
@@ -241,74 +281,63 @@ def percent(a: int, b: int) -> float:
         return 0.0
     return (a / b) * 100.0
 
-def diagnose(do_http: bool, delay: float, dns_timeout: float, http_timeout: float) -> int:
+def diagnose(do_http: bool, delay: float, dns_timeout: float, http_timeout: float, engine: StealthEngine) -> int:
     """
-    Simple conclusions based on allowed vs popular reachability.
+    Комплексная диагностика: сначала разрешенные РФ ресурсы, потом зарубежные.
     """
+    print(f"\n[!] Запуск полной диагностики (HTTP: {'ВКЛ' if do_http else 'ВЫКЛ'})...")
+    
     a_dns, a_http, a_total = check_sites(
-        ALLOWED_RU_SITES, do_http, delay, dns_timeout, http_timeout,
-        title="MODE: diagnose (step 1/2) — Allowed RU sites"
+        ALLOWED_RU_SITES, 
+        do_http, 
+        delay, 
+        dns_timeout, 
+        http_timeout,
+        title="[DIAGNOSE] Step 1/2: Checking Allowed RU Sites",
+        engine=engine
     )
+
     p_dns, p_http, p_total = check_sites(
-        POPULAR_FOREIGN_SITES, do_http, delay, dns_timeout, http_timeout,
-        title="MODE: diagnose (step 2/2) — Popular foreign sites"
+        POPULAR_FOREIGN_SITES, 
+        do_http, 
+        delay, 
+        dns_timeout, 
+        http_timeout,
+        title="[DIAGNOSE] Step 2/2: Checking Popular Foreign Sites",
+        engine=engine
     )
 
-    # Choose metric
+    hr()
+    print("РЕЗУЛЬТАТЫ ДИАГНОСТИКИ:")
+    
+    if a_dns == a_total and p_dns == p_total:
+        print("[+++] DNS: Полный порядок. Все домены резолвятся.")
+    elif a_dns == a_total and p_dns < p_total:
+        print("[---] DNS: Похоже на выборочную блокировку зарубежных доменов.")
+    else:
+        print("[!!!] DNS: Проблемы с резолвом даже разрешенных сайтов. Проверьте настройки сети.")
+
     if do_http:
-        a_ok, p_ok = a_http, p_http
-        metric_name = "HTTP"
-        total_a, total_p = a_total, p_total
-    else:
-        a_ok, p_ok = a_dns, p_dns
-        metric_name = "DNS"
-        total_a, total_p = a_total, p_total
-
-    a_pct = percent(a_ok, total_a)
-    p_pct = percent(p_ok, total_p)
-
-    print(ASCII)
-    print(BANNER)
+        if a_http == a_total and p_http == p_total:
+            print("[+++] HTTP: Прямой доступ ко всем ресурсам открыт.")
+        elif a_http == a_total and p_http < p_total:
+            print("[---] HTTP: Обнаружена фильтрация трафика (зарубежные ресурсы недоступны).")
+        else:
+            print("[!!!] HTTP: Проблемы с доступом даже к локальным ресурсам.")
+    
     hr()
-    print("ANALYSIS (simple)")
-    print(f"Metric: {metric_name}")
-    print(f"Allowed OK: {a_ok}/{total_a} ({a_pct:.0f}%)")
-    print(f"Popular OK: {p_ok}/{total_p} ({p_pct:.0f}%)")
-    hr()
-
-    # Simple heuristic
-    conclusions = []
-    if a_pct >= 75 and p_pct <= 40:
-        conclusions.append("Похоже на селективные ограничения: разрешённые ресурсы доступны, популярные зарубежные — нет/хуже.")
-    elif a_pct <= 40 and p_pct <= 40:
-        conclusions.append("Похоже на общую проблему доступа (канал/маршрутизация/DNS), т.к. оба набора дают плохой результат.")
-    elif a_pct >= 75 and p_pct >= 75:
-        conclusions.append("Признаков селективной блокировки по этому тесту не видно: оба набора в основном доступны.")
-    else:
-        conclusions.append("Картина смешанная: возможны частичные ограничения, проблемы DNS или нестабильная сеть.")
-
-    if (not do_http) and (a_dns >= int(0.8 * a_total)) and (p_dns >= int(0.8 * p_total)):
-        conclusions.append("DNS в целом работает. Если при этом реальный доступ в браузере плохой — запускай diagnose с --http.")
-
-    if do_http and (a_dns > a_http or p_dns > p_http):
-        conclusions.append("DNS может отвечать, но HTTP не проходит — возможна фильтрация HTTPS/сброс соединений/прокси-политики.")
-
-    print("Conclusions:")
-    for c in conclusions:
-        print(f"- {c}")
-
-    hr()
-    print("Notes:")
-    print("- Результаты могут быть неточными. Авторы не несут ответственности за возможный ущерб, который может возникнуть при использовании данного скрипта.")
-    print("- Это диагностический индикатор, а не стопроцентное доказательство.")
     return 0
 
-def interactive_shell(args_defaults: Dict[str, float]) -> int:
+def interactive_shell(args_defaults: Dict[str, float], engine: StealthEngine) -> int:
     """
-    Minimal interactive menu / console mode.
+    Minimal interactive menu / console mode with Stealth support.
     """
     print(ASCII)
     print(BANNER)
+    if engine.stealth_mode:
+        print(f"[!] Stealth (Медленно, UA: {engine.ua[:30]}...)")
+    else:
+        print("[+] Normal (Быстро)")
     hr()
     print("Interactive mode (type a number or a command):")
     print("  1) whitelist (summary)")
@@ -337,15 +366,16 @@ def interactive_shell(args_defaults: Dict[str, float]) -> int:
             print(textwrap.dedent("""
             Commands:
               1..8    run preset actions
+              9       scan whitelist IP zones
               whitelist [--full] [--limit-full N]
               popular [--http]
               allowed [--http]
               diagnose [--http]
-              q       quit
+              q        quit
             """).strip())
             continue
 
-        # presets
+        # --- PRESETS (Предустановки) ---
         if cmd == "1":
             print_whitelist(WHITE_LIST_RANGES, full=False, limit_full=20000)
             continue
@@ -354,61 +384,66 @@ def interactive_shell(args_defaults: Dict[str, float]) -> int:
             continue
         if cmd == "3":
             check_sites(POPULAR_FOREIGN_SITES, False, args_defaults["delay"], args_defaults["dns_timeout"], args_defaults["http_timeout"],
-                        "MODE: popular — DNS only")
+                        "MODE: popular — DNS only", engine=engine)
             continue
         if cmd == "4":
             check_sites(POPULAR_FOREIGN_SITES, True, args_defaults["delay"], args_defaults["dns_timeout"], args_defaults["http_timeout"],
-                        "MODE: popular — DNS + HTTP")
+                        "MODE: popular — DNS + HTTP", engine=engine)
             continue
         if cmd == "5":
             check_sites(ALLOWED_RU_SITES, False, args_defaults["delay"], args_defaults["dns_timeout"], args_defaults["http_timeout"],
-                        "MODE: allowed — DNS only")
+                        "MODE: allowed — DNS only", engine=engine)
             continue
         if cmd == "6":
             check_sites(ALLOWED_RU_SITES, True, args_defaults["delay"], args_defaults["dns_timeout"], args_defaults["http_timeout"],
-                        "MODE: allowed — DNS + HTTP")
+                        "MODE: allowed — DNS + HTTP", engine=engine)
             continue
         if cmd == "7":
-            diagnose(False, args_defaults["delay"], args_defaults["dns_timeout"], args_defaults["http_timeout"])
+            diagnose(False, args_defaults["delay"], args_defaults["dns_timeout"], args_defaults["http_timeout"], engine=engine)
             continue
         if cmd == "8":
-            diagnose(True, args_defaults["delay"], args_defaults["dns_timeout"], args_defaults["http_timeout"])
+            diagnose(True, args_defaults["delay"], args_defaults["dns_timeout"], args_defaults["http_timeout"], engine=engine)
             continue
         if cmd == "9":
-            asyncio.run(scan_zones(WHITE_LIST_RANGES))
+            asyncio.run(scan_zones(WHITE_LIST_RANGES, engine))
             continue
 
-        # command parsing
+        # --- COMMAND PARSING (Ручной ввод) ---
         parts = cmd.split()
         if not parts:
             continue
+            
         if parts[0] == "whitelist":
             full = ("--full" in parts)
             lim = 20000
             if "--limit-full" in parts:
                 try:
                     lim = int(parts[parts.index("--limit-full") + 1])
-                except Exception:
+                except:
                     print("Bad --limit-full value")
                     continue
             print_whitelist(WHITE_LIST_RANGES, full=full, limit_full=lim)
             continue
+
         if parts[0] == "popular":
             do_http = ("--http" in parts)
             check_sites(POPULAR_FOREIGN_SITES, do_http, args_defaults["delay"], args_defaults["dns_timeout"], args_defaults["http_timeout"],
-                        f"MODE: popular — {'DNS + HTTP' if do_http else 'DNS only'}")
+                        f"MODE: popular — {'DNS + HTTP' if do_http else 'DNS only'}", engine=engine)
             continue
+
         if parts[0] == "allowed":
             do_http = ("--http" in parts)
             check_sites(ALLOWED_RU_SITES, do_http, args_defaults["delay"], args_defaults["dns_timeout"], args_defaults["http_timeout"],
-                        f"MODE: allowed — {'DNS + HTTP' if do_http else 'DNS only'}")
-            continue
-        if parts[0] == "diagnose":
-            do_http = ("--http" in parts)
-            diagnose(do_http, args_defaults["delay"], args_defaults["dns_timeout"], args_defaults["http_timeout"])
+                        f"MODE: allowed — {'DNS + HTTP' if do_http else 'DNS only'}", engine=engine)
             continue
 
-        print("Unknown command. Type 'h' for help.")
+        if parts[0] == "diagnose":
+            do_http = ("--http" in parts)
+            diagnose(do_http, args_defaults["delay"], args_defaults["dns_timeout"], args_defaults["http_timeout"], engine=engine)
+            continue
+
+        if cmd:
+            print(f"Unknown command: {cmd}. Type 'h' for help.")
 
 def build_parser() -> argparse.ArgumentParser:
     ep = textwrap.dedent("""
@@ -506,20 +541,20 @@ def _fmt_elapsed(sec: float) -> str:
     s = int(sec) % 60
     return f"{m:02d}:{s:02d}"
 
-async def check_netitem(item: NetItem) -> bool:
+async def check_netitem(item: NetItem, engine: StealthEngine) -> bool:
     """
-    First success on 443 by TCP
+    Проверка конкретной зоны до первого успешного коннекта.
     """
     start = time.monotonic()
 
     sys.stdout.write(
-        f"[БЕЛЫЕ СПИСКИ] [...] проверка.. {item.cidr} | {item.owner} | {item.asn} "
-        f"(0/{MAX_IP_CHECK}, { _fmt_elapsed(0) })\n"
+        f"[БЕЛЫЕ СПИСКИ] [...] проверка.. {item.cidr} | {item.owner} | {item.asn}\n"
     )
     sys.stdout.flush()
 
     try:
-        return await asyncio.wait_for(_check_netitem_inner(item, start), timeout=ZONE_TIMEOUT)
+        # Передаем логику во внутреннюю функцию с поддержкой engine
+        return await asyncio.wait_for(_check_netitem_inner(item, start, engine), timeout=ZONE_TIMEOUT)
     except asyncio.TimeoutError:
         sys.stdout.write(
             f"[БЕЛЫЕ СПИСКИ] [-] TIMEOUT | {item.cidr} | {item.owner} | {item.asn} "
@@ -528,18 +563,26 @@ async def check_netitem(item: NetItem) -> bool:
         sys.stdout.flush()
         return False
 
-async def _check_netitem_inner(item: NetItem, start: float) -> bool:
+async def _check_netitem_inner(item: NetItem, start: float, engine: StealthEngine) -> bool:
+    """
+    Перебор IP-адресов внутри зоны.
+    """
     net = ipaddress.ip_network(item.cidr, strict=False)
+
+    hosts = list(net.hosts())[:MAX_IP_CHECK]
+    
+    if engine.stealth_mode:
+        hosts = engine.shuffle_list(hosts)
 
     checked = 0
     UPDATE_EVERY = 8
 
-    for i, ip in enumerate(net.hosts()):
-        if i >= MAX_IP_CHECK:
-            break
-
+    for i, ip in enumerate(hosts):
         checked = i + 1
 
+        await engine.jitter()
+
+        
         if checked == 1 or (checked % UPDATE_EVERY == 0):
             elapsed = time.monotonic() - start
             sys.stdout.write(
@@ -548,11 +591,12 @@ async def _check_netitem_inner(item: NetItem, start: float) -> bool:
             )
             sys.stdout.flush()
 
+        
         if await check_ip(str(ip)):
             elapsed = time.monotonic() - start
             sys.stdout.write("\n")
             sys.stdout.write(
-                f"[БЕЛЫЕ СПИСКИ] [+] ДОСТУП ЕСТЬ | {item.cidr} | {item.owner} | {item.asn} "
+                f"[БЕЛЫЕ СПИСКИ] [+] ДОСТУП ЕСТЬ | {item.cidr} | {item.owner} "
                 f"| found={ip} | checked={checked}/{MAX_IP_CHECK} | elapsed={_fmt_elapsed(elapsed)}\n"
             )
             sys.stdout.flush()
@@ -561,75 +605,112 @@ async def _check_netitem_inner(item: NetItem, start: float) -> bool:
     elapsed = time.monotonic() - start
     sys.stdout.write("\n")
     sys.stdout.write(
-        f"[БЕЛЫЕ СПИСКИ] [-] НЕТ ДОСТУПА | {item.cidr} | {item.owner} | {item.asn} "
+        f"[БЕЛЫЕ СПИСКИ] [-] НЕТ ДОСТУПА | {item.cidr} | {item.owner} "
         f"| checked={checked}/{MAX_IP_CHECK} | elapsed={_fmt_elapsed(elapsed)}\n"
     )
     sys.stdout.flush()
     return False
 
-
-async def scan_zones(items: List[NetItem]) -> None:
-    results = await asyncio.gather(*(check_netitem(i) for i in items))
+async def scan_zones(items: List[NetItem], engine: StealthEngine) -> None:
+    """
+    Запуск асинхронной проверки всех зон из списка.
+    """
+    # Запускаем задачи параллельно, передавая объект engine в каждую
+    results = await asyncio.gather(*(check_netitem(i, engine) for i in items))
 
     ok = sum(1 for r in results if r)
     total = len(results)
 
     print("-" * 72)
     print(f"[БЕЛЫЕ СПИСКИ] ГОТОВО: {ok}/{total} зон доступны")
-    print(f"ВАЖНОЕ ПРИМЕЧАНИЕ!!! ОПРЕДЕЛЕНИЕ К ДОСТУПУ ЗОН ПРОВЕРЯЕТСЯ ПУТЕМ TCP СОЕДИНЕИЯ НА 443 ПОРТ ИЗ 256 IP ОДНОЙ ЗОНЫ, ЭТО МОЖЕТ БЫТЬ МЕДЛЕННО И НЕ КОРРЕКТНО")
+    print(f"ВАЖНО: Проверка по TCP 443 порт. Лимит: {MAX_IP_CHECK} IP на каждую зону!! Может быть не корректно.")
 
-
-# IP-Zones Scan
-  
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
-    # If no command
+    # Проверяем, был ли передан флаг --stealth в аргументах
+    is_stealth = getattr(args, 'stealth', False)
+
+    if not is_stealth:
+        print(ASCII)
+        hr()
+        print("Выберите режим сканирования:")
+        print("  1) Normal (Fast) ")
+        print("  2) Stealth (Slow) ")
+        
+        try:
+            choice = input("\nmode> ").strip()
+            if choice == "2":
+                is_stealth = True
+        except (EOFError, KeyboardInterrupt):
+            print("\nЗавершение работы.")
+            sys.exit(0)
+
+    engine = StealthEngine(stealth_mode=is_stealth)
+    
+    if is_stealth:
+        print(f"\n[!] STEALTH MODE: UA={engine.ua[:40]}...")
+    else:
+        print("\n[+] Normanl Mode")
+    hr()
+
     if args.cmd is None:
         defaults = {"delay": 0.3, "dns_timeout": 2.0, "http_timeout": 2.0}
-        raise SystemExit(interactive_shell(defaults))
+        raise SystemExit(interactive_shell(defaults, engine))
 
     if args.cmd == "whitelist":
         raise SystemExit(print_whitelist(WHITE_LIST_RANGES, full=args.full, limit_full=args.limit_full))
 
     if args.cmd == "popular":
-        check_sites(POPULAR_FOREIGN_SITES, args.http, args.delay, args.dns_timeout, args.http_timeout,
-                    title="MODE: popular — Foreign sites")
+        check_sites(
+            POPULAR_FOREIGN_SITES, 
+            args.http, args.delay, args.dns_timeout, args.http_timeout,
+            title="MODE: popular — Foreign sites",
+            engine=engine
+        )
         raise SystemExit(0)
 
     if args.cmd == "allowed":
-        check_sites(ALLOWED_RU_SITES, args.http, args.delay, args.dns_timeout, args.http_timeout,
-                    title="MODE: allowed — RU allowed sites")
+        check_sites(
+            ALLOWED_RU_SITES, 
+            args.http, args.delay, args.dns_timeout, args.http_timeout,
+            title="MODE: allowed — RU allowed sites",
+            engine=engine
+        )
         raise SystemExit(0)
 
     if args.cmd == "diagnose":
-        raise SystemExit(diagnose(args.http, args.delay, args.dns_timeout, args.http_timeout))
+        raise SystemExit(diagnose(
+            args.http, args.delay, args.dns_timeout, args.http_timeout, 
+            engine=engine
+        ))
 
     if args.cmd == "shell":
         defaults = {"delay": args.delay, "dns_timeout": args.dns_timeout, "http_timeout": args.http_timeout}
-        raise SystemExit(interactive_shell(defaults))
+        raise SystemExit(interactive_shell(defaults, engine))
       
     if args.cmd == "zones":
-        asyncio.run(scan_zones(WHITE_LIST_RANGES))
+        asyncio.run(scan_zones(WHITE_LIST_RANGES, engine))
         raise SystemExit(0)
 
 if __name__ == "__main__":
     main()
-  
+
 #-----------------hashtags-----------
-#whitenetscangang@gmail.com
-#whitenetscan@tokyo.space
+#whitenetscangang
+#whitenetscan
 #whitenetscan_number_one
 #Fsociety
 #FuckSociety
 #Networking
 #Scaning
 #Tools
+#БелыеСписки
+#БС
+#Анализ
+#MrRobot
+#333 liber 
+#(joke hashtags)
+
 #-----------------hashtags-----------
-#
-#-----------------credits-----------
-#nevtikaniy
-#Goldberg
-#JumqKey
-#-----------------credits-----------
