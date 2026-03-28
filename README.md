@@ -94,15 +94,14 @@ pipx install --force git+https://github.com/JumqKey/WhiteNetScan.git
 - scan <mode> [options]
 - Режимы работы
 - Скан Белых Списков
-- Анализ заранее заданных IP-диапазонов (Cloud / CDN / Hosting).
-
+- Анализ заранее заданных IP-диапазонов
 ```bash
 scan whitelist
 ```
 # Вывод:
 
 - CIDR-подсеть
-- владелец (провайдер / облако)
+- владелец (провайдер)
 - ASN
   - назначение
   - количество IP-адресов
